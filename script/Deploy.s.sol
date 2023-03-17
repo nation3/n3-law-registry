@@ -2,12 +2,12 @@
 pragma solidity >=0.8.18;
 
 import {Script} from "forge-std/Script.sol";
-import {LawRegistry} from "../src/LawRegistry.sol";
+import {DocRegistry} from "../src/DocRegistry.sol";
 
 contract Deploy is Script {
     address internal deployer;
     /// List all contracts you want to deploy
-    LawRegistry internal registry;
+    DocRegistry internal registry;
 
     function setUp() public virtual {
         (deployer, ) = deriveRememberKey(vm.envString("MNEMONIC"), 0);
@@ -16,7 +16,7 @@ contract Deploy is Script {
     function run() public {
         vm.startBroadcast(deployer);
         // deploy foo
-        registry = new LawRegistry();
+        registry = new DocRegistry();
         vm.stopBroadcast();
     }
 }

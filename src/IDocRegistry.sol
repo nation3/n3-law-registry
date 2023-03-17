@@ -17,7 +17,7 @@ struct Multihash {
 /// @dev Agreements should be referenced like within Linked Markdown like:
 /// @dev   zonename/agreement@revision or just zonename/agreement for latest
 /// @dev e.g. Nation3/judge-agreement@4
-interface ILawRegistry {
+interface IDocRegistry {
     error Unauthorized();
 
     event AgreementUpdated(

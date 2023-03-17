@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./ILawRegistry.sol";
+import "./IDocRegistry.sol";
 
 /// @title Linked Markdown Agreement Registry
 /// @author sollee.eth
@@ -15,7 +15,7 @@ import "./ILawRegistry.sol";
 /// @dev Agreements should be referenced like within Linked Markdown like:
 /// @dev   zonename/agreement@revision or just zonename/agreement for latest
 /// @dev e.g. Nation3/judge-agreement@4
-contract LawRegistry is ERC721, ILawRegistry, Ownable {
+contract DocRegistry is ERC721, IDocRegistry, Ownable {
     mapping(bytes32 => mapping(bytes32 => Multihash[]))
         internal _zoneAgreements;
     mapping(bytes32 => string) internal _names;

@@ -2,19 +2,19 @@
 pragma solidity >=0.8.18;
 
 import "forge-std/Test.sol";
-import {LawRegistry} from "../src/LawRegistry.sol";
-import {Multihash, ILawRegistry} from "../src/ILawRegistry.sol";
+import {DocRegistry} from "../src/DocRegistry.sol";
+import {Multihash, IDocRegistry} from "../src/IDocRegistry.sol";
 
 contract RegistryTest is Test {
     function testClaimZone() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
         reg.claimZone("hello world");
         assertEq(reg.balanceOf(address(this)), 1);
         assertEq(reg.ownerOf(uint256(keccak256("hello world"))), address(this));
     }
 
     function testAddAgreement() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -33,7 +33,7 @@ contract RegistryTest is Test {
     }
 
     function testUpdateAgreement() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -62,13 +62,13 @@ contract RegistryTest is Test {
     }
 
     function testCannotUpdateAgreement() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
         assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
 
-        vm.expectRevert(ILawRegistry.Unauthorized.selector);
+        vm.expectRevert(IDocRegistry.Unauthorized.selector);
         vm.prank(address(0x333));
 
         reg.updateAgreement(
@@ -79,7 +79,7 @@ contract RegistryTest is Test {
     }
 
     function testGetAgreementData() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -103,7 +103,7 @@ contract RegistryTest is Test {
     }
 
     function testGetLatestAgreement() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -129,17 +129,17 @@ contract RegistryTest is Test {
     }
 
     function testPauseClaims() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.pauseZoneClaims();
 
-        vm.expectRevert(LawRegistry.GlobalPaused.selector);
+        vm.expectRevert(DocRegistry.GlobalPaused.selector);
 
         reg.claimZone("zone");
     }
 
     function testPauseUpdatesGlobal() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -147,7 +147,7 @@ contract RegistryTest is Test {
 
         reg.pauseAgreementUpdates();
 
-        vm.expectRevert(LawRegistry.GlobalPaused.selector);
+        vm.expectRevert(DocRegistry.GlobalPaused.selector);
 
         reg.updateAgreement(
             keccak256("zone"), // zone
@@ -157,7 +157,7 @@ contract RegistryTest is Test {
     }
 
     function testPauseUpdatesZone() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -165,7 +165,7 @@ contract RegistryTest is Test {
 
         reg.pauseAgreementUpdates(keccak256("zone"));
 
-        vm.expectRevert(LawRegistry.ZonePaused.selector);
+        vm.expectRevert(DocRegistry.ZonePaused.selector);
 
         reg.updateAgreement(
             keccak256("zone"), // zone
@@ -175,7 +175,7 @@ contract RegistryTest is Test {
     }
 
     function testPauseUpdatesKey() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
@@ -183,7 +183,7 @@ contract RegistryTest is Test {
 
         reg.pauseAgreementUpdates(keccak256("zone"), keccak256("key"));
 
-        vm.expectRevert(LawRegistry.KeyPaused.selector);
+        vm.expectRevert(DocRegistry.KeyPaused.selector);
 
         reg.updateAgreement(
             keccak256("zone"), // zone
@@ -193,21 +193,21 @@ contract RegistryTest is Test {
     }
 
     function testZoneName() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.name(keccak256("zone")), "zone");
     }
 
     function testZoneID() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.zoneID(keccak256("zone")), uint256(keccak256("zone")));
     }
 
     function testZoneOwner() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
         assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
@@ -218,7 +218,7 @@ contract RegistryTest is Test {
     }
 
     function testCannotClaimExistingZone() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
 
@@ -227,7 +227,7 @@ contract RegistryTest is Test {
     }
 
     function testCannotReclaimZoneAsUser() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         reg.claimZone("zone");
 
@@ -238,7 +238,7 @@ contract RegistryTest is Test {
     }
 
     function testReclaimZone() public {
-        LawRegistry reg = new LawRegistry();
+        DocRegistry reg = new DocRegistry();
 
         vm.prank(address(0x333));
         reg.claimZone("zone");
