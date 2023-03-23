@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -9,14 +9,14 @@ import "./IDocRegistry.sol";
 /// @author sollee.eth
 /// @notice Package manager for Linked Markdown
 /// @dev Zone names MUST satisfy the following regex:
-/// @dev   ^([a-zA-Z0-9\-]{1,32})$
+/// @dev   ^([a-z0-9\-]{1,32})$
 /// @dev Agreement names MUST satisfy the following regex:
 /// @dev   ^([a-z0-9\-]{1,32})$
 /// @dev Agreements should be referenced like within Linked Markdown like:
 /// @dev   zonename/agreement@revision or just zonename/agreement for latest
 /// @dev e.g. Nation3/judge-agreement@4
 contract DocRegistry is ERC721, IDocRegistry, Ownable {
-    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => Multihash)))
+    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => bytes32)))
         internal _zoneAgreements;
     mapping(bytes32 => string) internal _names;
 
@@ -49,7 +49,8 @@ contract DocRegistry is ERC721, IDocRegistry, Ownable {
         bytes32 zone,
         bytes32 key,
         string memory revisionName,
-        Multihash calldata value
+        bytes32 value,
+        uint8 cidtype
     ) public {
         if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
 
@@ -59,17 +60,17 @@ contract DocRegistry is ERC721, IDocRegistry, Ownable {
 
         bytes32 revisionID = keccak256(bytes(revisionName));
 
-        require(_zoneAgreements[zone][key][revisionID].size == 0, "exists");
+        require(_zoneAgreements[zone][key][revisionID] == 0x0, "exists");
 
         _zoneAgreements[zone][key][revisionID] = value;
-        emit AgreementUpdated(zone, key, value.hash, revisionID);
+        emit AgreementUpdated(zone, key, value, revisionID);
     }
 
     function zoneAgreement(
         bytes32 zone,
         bytes32 key,
         bytes32 revision
-    ) public view returns (Multihash memory) {
+    ) public view returns (bytes32) {
         return _zoneAgreements[zone][key][revision];
     }
 
