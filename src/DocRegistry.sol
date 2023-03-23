@@ -16,7 +16,7 @@ import "./IDocRegistry.sol";
 /// @dev   zonename/agreement@revision or just zonename/agreement for latest
 /// @dev e.g. Nation3/judge-agreement@4
 contract DocRegistry is ERC721, IDocRegistry, Ownable {
-    mapping(bytes32 => mapping(bytes32 => Multihash[]))
+    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => Multihash)))
         internal _zoneAgreements;
     mapping(bytes32 => string) internal _names;
 
@@ -48,36 +48,29 @@ contract DocRegistry is ERC721, IDocRegistry, Ownable {
     function updateAgreement(
         bytes32 zone,
         bytes32 key,
+        string memory revisionName,
         Multihash calldata value
     ) public {
         if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
+
         if (agreementUpdatesPaused) revert GlobalPaused();
         if (zoneUpdatesPaused[zone]) revert ZonePaused();
         if (keyUpdatesPaused[zone][key]) revert KeyPaused();
 
-        _zoneAgreements[zone][key].push(value);
-        emit AgreementUpdated(
-            zone,
-            key,
-            value.hash, //
-            latestAgreement(zone, key)
-        );
+        bytes32 revisionID = keccak256(bytes(revisionName));
+
+        require(_zoneAgreements[zone][key][revisionID].size == 0, "exists");
+
+        _zoneAgreements[zone][key][revisionID] = value;
+        emit AgreementUpdated(zone, key, value.hash, revisionID);
     }
 
     function zoneAgreement(
         bytes32 zone,
         bytes32 key,
-        uint256 version
+        bytes32 revision
     ) public view returns (Multihash memory) {
-        return _zoneAgreements[zone][key][version];
-    }
-
-    function latestAgreement(bytes32 zone, bytes32 key)
-        public
-        view
-        returns (uint256)
-    {
-        return _zoneAgreements[zone][key].length - 1;
+        return _zoneAgreements[zone][key][revision];
     }
 
     function name(bytes32 zone) public view returns (string memory) {

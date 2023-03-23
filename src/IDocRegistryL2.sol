@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-/// @title Linked Markdown Agreement Registry Interface
+/// @title L2 Linked Markdown Agreement Registry Interface
 /// @author sollee.eth
 /// @notice Package manager for Linked Markdown
 /// @dev Zone names MUST satisfy the following regex:
@@ -9,11 +9,9 @@ pragma solidity ^0.8.13;
 /// @dev Agreement names MUST satisfy the following regex:
 /// @dev   ^([a-z0-9\-]{1,32})$
 /// @dev Agreements should be referenced like within Linked Markdown like:
-/// @dev   zonename/agreement@revision or just zonename/agreement to get
-/// @dev the key at "latest" (an exception to the "set once" rule
-/// @dev of revisions: it can be changed to whatever)
-/// @dev e.g. Nation3/judge-agreement@v4.0.0
-interface IDocRegistry {
+/// @dev   zonename/agreement@revision or just zonename/agreement for latest
+/// @dev e.g. Nation3/judge-agreement@4
+interface IDocRegistryL2 {
     error Unauthorized();
 
     event AgreementUpdated(
@@ -30,20 +28,20 @@ interface IDocRegistry {
     /// @param zone Zone name.
     function claimZone(string memory zone) external;
 
-    /// @notice Update/create an agreement under a zone, creating a new revision
-    /// @dev Agreements have tags so that people can choose to
+    /// @notice Update/create an agreement under a zone, creating a new version
+    /// @dev Agreements have versioning so that people can choose to
     /// @dev lock on to one revision or automatically use the latest.
     /// NOTE: Agreement names SHOULD satisfy the following regex:
     /// ^([a-z0-9\-]{1,32})$
-    /// @param zone NFT ID of zone name (e.g. vitalik, luisc, nation3)
-    /// @param key Hash of agreement name (e.g. rental, delivery-escrow)
-    /// @param revision Hash of revision name (e.g. v1.0.0)
+    /// @param zone NFT ID of zone name (e.g. vitalik, luisc, nation3).
+    /// @param key Hash of agreement name (e.g. rental, delivery-escrow).
     /// @param value CID of agreement data, to be retrieved via IPFS
+    /// @param revision Hash of revision name (e.g. v1.0.0)
     /// @param cidType Hash function & size, for IPFS forward compatibility
     function updateAgreement(
-        bytes32 zone,
+        uint64 zone,
         bytes32 key,
-        string memory revision,
+        bytes32 revision,
         bytes32 value,
         uint8 cidType
     ) external;

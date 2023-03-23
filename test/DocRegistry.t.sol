@@ -3,7 +3,9 @@ pragma solidity >=0.8.18;
 
 import "forge-std/Test.sol";
 import {DocRegistry} from "../src/DocRegistry.sol";
-import {Multihash, IDocRegistry} from "../src/IDocRegistry.sol";
+import {IDocRegistry} from "../src/IDocRegistry.sol";
+
+import {GasHelpers} from "solmate/test/utils/DSTestPlus.sol";
 
 contract RegistryTest is Test {
     function testClaimZone() public {
@@ -23,12 +25,18 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "revision",
             Multihash(keccak256("value"), 0x12, 0x20)
         );
 
         assert(
-            reg.zoneAgreement(keccak256("zone"), keccak256("key"), 0).hash ==
-                keccak256("value")
+            reg
+                .zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision")
+                )
+                .hash == keccak256("value")
         );
     }
 
@@ -42,22 +50,36 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
-            Multihash(keccak256("value"), 0x12, 0x20)
+            "revision",
+            keccak256("value"),
+            0
         );
 
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
-            Multihash(keccak256("value2"), 0x12, 0x20)
+            "revision2",
+            keccak256("value2"),
+            0
         );
 
         assert(
-            reg.zoneAgreement(keccak256("zone"), keccak256("key"), 0).hash ==
-                keccak256("value")
+            reg
+                .zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision")
+                )
+                .hash == keccak256("value")
         );
         assert(
-            reg.zoneAgreement(keccak256("zone"), keccak256("key"), 1).hash ==
-                keccak256("value2")
+            reg
+                .zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision2")
+                )
+                .hash == keccak256("value2")
         );
     }
 
@@ -74,7 +96,9 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
-            Multihash(keccak256("value"), 0x12, 0x20)
+            "revision",
+            keccak256("value"),
+            0
         );
     }
 
@@ -88,18 +112,17 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "revision",
             Multihash(keccak256("value"), 0x12, 0x20)
         );
 
-        Multihash memory agreementData = reg.zoneAgreement(
+        bytes32 agreementData = reg.zoneAgreement(
             keccak256("zone"),
             keccak256("key"),
-            0
+            keccak256("revision")
         );
 
-        assertEq(agreementData.hash, keccak256("value"));
-        assertEq(agreementData.hash_function, 0x12);
-        assertEq(agreementData.size, 0x20);
+        assertEq(agreementData, keccak256("value"));
     }
 
     function testGetLatestAgreement() public {
@@ -112,20 +135,23 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "revision",
             Multihash(keccak256("value"), 0x12, 0x20)
         );
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "latest",
             Multihash(keccak256("value2"), 0x12, 0x20)
         );
 
-        uint256 latest = reg.latestAgreement(
+        Multihash memory latest = reg.zoneAgreement(
             keccak256("zone"),
-            keccak256("key")
+            keccak256("key"),
+            keccak256("latest")
         );
 
-        assertEq(latest, 1);
+        assertEq(latest.hash, keccak256("value2"));
     }
 
     function testPauseClaims() public {
@@ -152,6 +178,7 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "pp",
             Multihash(keccak256("value2"), 0x12, 0x20)
         );
     }
@@ -170,6 +197,7 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "pp",
             Multihash(keccak256("value2"), 0x12, 0x20)
         );
     }
@@ -188,6 +216,7 @@ contract RegistryTest is Test {
         reg.updateAgreement(
             keccak256("zone"), // zone
             keccak256("key"), // key
+            "pp",
             Multihash(keccak256("value2"), 0x12, 0x20)
         );
     }
