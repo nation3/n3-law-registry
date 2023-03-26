@@ -2,12 +2,12 @@
 pragma solidity >=0.8.18;
 
 import "forge-std/Test.sol";
-import {DocRegistry} from "../src/DocRegistry.sol";
-import {IDocRegistry} from "../src/IDocRegistry.sol";
+import {DocRegistryL2} from "../src/DocRegistryL2.sol";
+import {IDocRegistryL2} from "../src/IDocRegistryL2.sol";
 
 import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 
-contract RegistryTest is Test, DSTestPlus {
+contract L2RegistryTest is Test, DSTestPlus {
     function fail(string memory err)
         internal
         override(StdAssertions, DSTestPlus)
@@ -31,22 +31,26 @@ contract RegistryTest is Test, DSTestPlus {
     }
 
     function testClaimZone() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("hello world");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("hello world"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
+
+        reg.claimZone("hello world 2");
+        assertEq(reg.balanceOf(address(this)), 2);
+        assertEq(reg.ownerOf(1), address(this));
     }
 
     function testAddAgreement() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value")
@@ -62,21 +66,21 @@ contract RegistryTest is Test, DSTestPlus {
     }
 
     function testUpdateAgreement() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value")
         );
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision2",
             keccak256("value2")
@@ -98,70 +102,63 @@ contract RegistryTest is Test, DSTestPlus {
         );
     }
 
-    function testCannotUpdateSameRevisionAgreement() public {
-        DocRegistry reg = new DocRegistry();
+    function testCannotUpdateAgreementAsNotOwner() public {
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
+
+        vm.expectRevert(IDocRegistryL2.Unauthorized.selector);
+        vm.prank(address(0x333));
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value")
         );
-        assert(
-            reg.zoneAgreement(
-                keccak256("zone"),
-                keccak256("key"),
-                keccak256("revision")
-            ) == keccak256("value")
+    }
+
+    function testCannotUpdateRevisionAsOwner() public {
+        DocRegistryL2 reg = new DocRegistryL2();
+
+        reg.claimZone("zone");
+        assertEq(reg.balanceOf(address(this)), 1);
+        assertEq(reg.ownerOf(0), address(this));
+        reg.updateAgreement(
+            0, // zone
+            keccak256("key"), // key
+            "revision",
+            keccak256("value")
         );
 
         vm.expectRevert(bytes("exists"));
+
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value2")
         );
     }
 
-    function testCannotUpdateAgreement() public {
-        DocRegistry reg = new DocRegistry();
-
-        reg.claimZone("zone");
-        assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
-
-        vm.expectRevert(IDocRegistry.Unauthorized.selector);
-        vm.prank(address(0x333));
-
-        reg.updateAgreement(
-            keccak256("zone"), // zone
-            keccak256("key"), // key
-            "revision",
-            keccak256("value")
-        );
-    }
-
     function testGetAgreementData() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value")
         );
 
         bytes32 agreementData = reg.zoneAgreement(
-            keccak256("zone"),
+            uint256(0),
             keccak256("key"),
             keccak256("revision")
         );
@@ -170,20 +167,20 @@ contract RegistryTest is Test, DSTestPlus {
     }
 
     function testGetLatestAgreement() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.balanceOf(address(this)), 1);
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
+        assertEq(reg.ownerOf(0), address(this));
 
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "revision",
             keccak256("value")
         );
         reg.updateAgreement(
-            keccak256("zone"), // zone
+            0, // zone
             keccak256("key"), // key
             "latest",
             keccak256("value2")
@@ -199,36 +196,40 @@ contract RegistryTest is Test, DSTestPlus {
     }
 
     function testZoneName() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
         assertEq(reg.name(keccak256("zone")), "zone");
     }
 
-    function testZoneID() public {
-        DocRegistry reg = new DocRegistry();
+    function testZoneIDName() public {
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
-        assertEq(reg.zoneID(keccak256("zone")), uint256(keccak256("zone")));
+        assertEq(reg.name(uint256(0)), "zone");
+    }
+
+    function testZoneID() public {
+        DocRegistryL2 reg = new DocRegistryL2();
+
+        reg.claimZone("zone");
+        assertEq(reg.zoneID(keccak256("zone")), 0);
     }
 
     function testZoneOwner() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
-        assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
-        assertEq(
-            reg.ownerOf(uint256(keccak256("zone"))),
-            reg.zoneOwner(keccak256("zone"))
-        );
+        assertEq(reg.ownerOf(0), address(this));
+        assertEq(reg.ownerOf(0), reg.zoneOwner(keccak256("zone")));
     }
 
     function testCannotClaimExistingZone() public {
-        DocRegistry reg = new DocRegistry();
+        DocRegistryL2 reg = new DocRegistryL2();
 
         reg.claimZone("zone");
 
-        vm.expectRevert(bytes("ERC721: token already minted"));
+        vm.expectRevert(bytes("no minty twice"));
         reg.claimZone("zone");
     }
 }

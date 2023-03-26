@@ -5,14 +5,14 @@ pragma solidity ^0.8.13;
 /// @author sollee.eth
 /// @notice Package manager for Linked Markdown
 /// @dev Zone names MUST satisfy the following regex:
-/// @dev   ^([a-zA-Z0-9\-]{1,32})$
+/// @dev   ^([a-z0-9\-]{1,32})$
 /// @dev Agreement names MUST satisfy the following regex:
 /// @dev   ^([a-z0-9\-]{1,32})$
 /// @dev Agreements should be referenced like within Linked Markdown like:
 /// @dev   zonename/agreement@revision or just zonename/agreement to get
-/// @dev the key at "latest" (an exception to the "set once" rule
+/// @dev the key at "latest" (an exception to the immutability
 /// @dev of revisions: it can be changed to whatever)
-/// @dev e.g. Nation3/judge-agreement@v4.0.0
+/// @dev e.g. nation3/judge-agreement@v4.0.0 or sollee/rental@revisionhere
 interface IDocRegistry {
     error Unauthorized();
 
@@ -38,14 +38,12 @@ interface IDocRegistry {
     /// @param zone NFT ID of zone name (e.g. vitalik, luisc, nation3)
     /// @param key Hash of agreement name (e.g. rental, delivery-escrow)
     /// @param revision Hash of revision name (e.g. v1.0.0)
-    /// @param value CID of agreement data, to be retrieved via IPFS
-    /// @param cidType Hash function & size, for IPFS forward compatibility
+    /// @param value Hash of agreement data, to be retrieved via IPFS
     function updateAgreement(
         bytes32 zone,
         bytes32 key,
         string memory revision,
-        bytes32 value,
-        uint8 cidType
+        bytes32 value
     ) external;
 
     /// @notice Returns CID of an agreement version

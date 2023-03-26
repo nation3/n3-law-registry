@@ -5,8 +5,14 @@ out = 'packages/contracts/out'
 script = 'packages/contracts/script'
 broadcast = 'packages/contracts/broadcast'
 cache_path = 'packages/contracts/cache'
-libs = ['lib']
+libs = ['packages/contracts/lib']
 solc = "0.8.18"
+
+[profile.default.model_checker]
+contracts = { 'packages/contracts/src/DocRegistry.sol' = [ 'DocRegistry' ], 'packages/contracts/src/DocRegistryL2.sol' = [ 'DocRegistryL2' ] }
+# engine = 'chc'
+timeout = 15000
+targets = [ 'assert' ]
 
 [rpc_endpoints]
 sepolia = "${SEPOLIA}"

@@ -1,0 +1,12 @@
+{
+  "name": "linkedpm",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/solleedev/n3-law-registry.git",
+  "author": "Sollee <solleedev@proton.me>",
+  "license": "MIT",
+  "workspaces": [
+    "packages/sdk"
+  ],
+  "private": true
+}

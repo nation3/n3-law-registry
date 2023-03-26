@@ -1,0 +1,13 @@
+{
+  "name": "@linkedpm/sdk",
+  "version": "1.0.0",
+  "description": "Linked Markdown SDK for uploading/fetching",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "dependencies": {
+    "js-ipfs": "^0.0.301"
+  }
+}
