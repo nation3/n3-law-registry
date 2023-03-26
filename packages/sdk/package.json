@@ -8,6 +8,7 @@
     "/dist"
   ],
   "dependencies": {
+    "ethers": "^6.2.2",
     "js-ipfs": "^0.0.301"
   }
 }

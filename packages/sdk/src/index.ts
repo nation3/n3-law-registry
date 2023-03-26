@@ -1,5 +1,5 @@
 // linkedpm SDK
 
-function fetchMetadata() {}
+function fetchMetadata(zone: string, key: string, revision: string) {}
 
-function uploadIPFS() {}
+function upload() {}

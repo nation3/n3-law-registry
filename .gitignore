@@ -32,3 +32,6 @@ docs/
 # env file
 .env
 .fishenv
+
+# node modules
+node_modules
