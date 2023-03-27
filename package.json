@@ -8,5 +8,8 @@
   "workspaces": [
     "packages/sdk"
   ],
-  "private": true
+  "private": true,
+  "scripts": {
+    "build": "forge build && typechain --target=ethers-v5 "
+  }
 }
