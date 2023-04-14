@@ -7,6 +7,7 @@ broadcast = 'packages/contracts/broadcast'
 cache_path = 'packages/contracts/cache'
 libs = ['packages/contracts/lib']
 solc = "0.8.18"
+fs_permissions = [{ access = "read-write", path = "./packages/contracts/"}]
 
 [profile.default.model_checker]
 contracts = { 'packages/contracts/src/DocRegistry.sol' = [ 'DocRegistry' ], 'packages/contracts/src/DocRegistryL2.sol' = [ 'DocRegistryL2' ] }

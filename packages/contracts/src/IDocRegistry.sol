@@ -19,7 +19,7 @@ interface IDocRegistry {
     event AgreementUpdated(
         bytes32 zone,
         bytes32 key,
-        bytes32 value,
+        bytes value,
         bytes32 revision
     );
 
@@ -42,8 +42,8 @@ interface IDocRegistry {
     function updateAgreement(
         bytes32 zone,
         bytes32 key,
-        string memory revision,
-        bytes32 value
+        string calldata revision,
+        bytes calldata value
     ) external;
 
     /// @notice Returns CID of an agreement version
@@ -55,7 +55,7 @@ interface IDocRegistry {
         bytes32 zone,
         bytes32 key,
         bytes32 revision
-    ) external view returns (bytes32);
+    ) external view returns (bytes memory);
 
     /// @notice Returns zone owner
     /// @param zone Hash of zone name (e.g. sollee, luisc, nation3).

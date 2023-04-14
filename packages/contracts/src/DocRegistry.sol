@@ -18,9 +18,13 @@ import "./IDocRegistry.sol";
 /// @dev of revisions: it can be changed to whatever)
 /// @dev e.g. nation3/judge-agreement@v4.0.0 or sollee/rental@revisionhere
 contract DocRegistry is ERC721, IDocRegistry {
-    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => bytes32)))
+    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => bytes)))
         internal _zoneAgreements;
     mapping(bytes32 => string) internal _names;
+
+    function registryType() public pure returns (uint8) {
+        return 0; // L1, calldata is not important
+    }
 
     constructor() ERC721("linked.md", "CONTRACTS") {}
 
@@ -34,14 +38,20 @@ contract DocRegistry is ERC721, IDocRegistry {
     function updateAgreement(
         bytes32 zone,
         bytes32 key,
-        string memory revisionName,
-        bytes32 value
+        string calldata revisionName,
+        bytes calldata value
     ) public {
         if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
 
         bytes32 revisionID = keccak256(bytes(revisionName));
 
-        require(_zoneAgreements[zone][key][revisionID] == 0x0, "exists");
+        // latest is an exception to the immutability rule
+        if (revisionID != keccak256("latest")) {
+            require(
+                _zoneAgreements[zone][key][revisionID].length == 0,
+                "exists"
+            );
+        }
 
         _zoneAgreements[zone][key][revisionID] = value;
         emit AgreementUpdated(zone, key, value, revisionID);
@@ -51,7 +61,7 @@ contract DocRegistry is ERC721, IDocRegistry {
         bytes32 zone,
         bytes32 key,
         bytes32 revision
-    ) public view returns (bytes32) {
+    ) public view returns (bytes memory) {
         return _zoneAgreements[zone][key][revision];
     }
 

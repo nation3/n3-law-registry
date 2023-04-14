@@ -10,6 +10,14 @@
   ],
   "private": true,
   "scripts": {
-    "build": "forge build && typechain --target=ethers-v5 "
+    "build": "forge build && yarn workspace @linkedpm/sdk types",
+    "test": "yarn contracts:test && yarn sdk:test",
+    "contracts:test": "forge test",
+    "sdk:test": "./sdktest.sh"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v5": "^10.2.0",
+    "ethers": "^6.2.3",
+    "typechain": "^8.1.1"
   }
 }

@@ -33,6 +33,8 @@ contract L2RegistryTest is Test, DSTestPlus {
     function testClaimZone() public {
         DocRegistryL2 reg = new DocRegistryL2();
 
+        console.log("L2 registry addr:", address(reg));
+
         reg.claimZone("hello world");
         assertEq(reg.balanceOf(address(this)), 1);
         assertEq(reg.ownerOf(0), address(this));
@@ -53,14 +55,16 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
 
         assert(
-            reg.zoneAgreement(
-                keccak256("zone"),
-                keccak256("key"),
-                keccak256("revision")
+            keccak256(
+                reg.zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision")
+                )
             ) == keccak256("value")
         );
     }
@@ -76,28 +80,74 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
 
         reg.updateAgreement(
             0, // zone
             keccak256("key"), // key
             "revision2",
-            keccak256("value2")
+            "value2"
         );
 
         assert(
-            reg.zoneAgreement(
-                keccak256("zone"),
-                keccak256("key"),
-                keccak256("revision")
+            keccak256(
+                reg.zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision")
+                )
             ) == keccak256("value")
         );
         assert(
-            reg.zoneAgreement(
-                keccak256("zone"),
-                keccak256("key"),
-                keccak256("revision2")
+            keccak256(
+                reg.zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("revision2")
+                )
+            ) == keccak256("value2")
+        );
+    }
+
+    function testUpdateAgreementLatest() public {
+        DocRegistryL2 reg = new DocRegistryL2();
+
+        reg.claimZone("zone");
+        assertEq(reg.balanceOf(address(this)), 1);
+        assertEq(reg.ownerOf(0), address(this));
+
+        reg.updateAgreement(
+            0, // zone
+            keccak256("key"), // key
+            "latest",
+            "value"
+        );
+
+        assert(
+            keccak256(
+                reg.zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("latest")
+                )
+            ) == keccak256("value")
+        );
+
+        reg.updateAgreement(
+            0, // zone
+            keccak256("key"), // key
+            "latest",
+            "value2"
+        );
+
+        assert(
+            keccak256(
+                reg.zoneAgreement(
+                    keccak256("zone"),
+                    keccak256("key"),
+                    keccak256("latest")
+                )
             ) == keccak256("value2")
         );
     }
@@ -116,7 +166,7 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
     }
 
@@ -130,7 +180,7 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
 
         vm.expectRevert(bytes("exists"));
@@ -139,7 +189,7 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value2")
+            "value2"
         );
     }
 
@@ -154,16 +204,16 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
 
-        bytes32 agreementData = reg.zoneAgreement(
+        bytes memory agreementData = reg.zoneAgreement(
             uint256(0),
             keccak256("key"),
             keccak256("revision")
         );
 
-        assertEq(agreementData, keccak256("value"));
+        assertEq(keccak256(agreementData), keccak256("value"));
     }
 
     function testGetLatestAgreement() public {
@@ -177,22 +227,22 @@ contract L2RegistryTest is Test, DSTestPlus {
             0, // zone
             keccak256("key"), // key
             "revision",
-            keccak256("value")
+            "value"
         );
         reg.updateAgreement(
             0, // zone
             keccak256("key"), // key
             "latest",
-            keccak256("value2")
+            "value2"
         );
 
-        bytes32 latest = reg.zoneAgreement(
+        bytes memory latest = reg.zoneAgreement(
             keccak256("zone"),
             keccak256("key"),
             keccak256("latest")
         );
 
-        assertEq(latest, keccak256("value2"));
+        assertEq(keccak256(latest), keccak256("value2"));
     }
 
     function testZoneName() public {
