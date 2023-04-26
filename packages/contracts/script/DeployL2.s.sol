@@ -3,6 +3,7 @@ pragma solidity >=0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {DocRegistryL2} from "../src/DocRegistryL2.sol";
+import {console} from "forge-std/console.sol";
 
 contract Deploy is Script {
     address internal deployer;
@@ -16,5 +17,36 @@ contract Deploy is Script {
     function run() public {
         vm.broadcast(deployer);
         registry = new DocRegistryL2();
+
+        string memory x = vm.serializeAddress("index", "a", address(registry));
+        vm.writeJson(
+            x,
+            string.concat(
+                "./packages/contracts/out/deploy-",
+                vm.toString(getChainID()),
+                "-",
+                vm.toString(block.timestamp),
+                ".json"
+            )
+        );
+        vm.writeJson(
+            x,
+            string.concat(
+                "./packages/contracts/out/deploy-",
+                vm.toString(getChainID()),
+                "-latest",
+                ".json"
+            )
+        );
+
+        console.log("L2 registry addr:", address(registry));
+    }
+
+    function getChainID() public view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
     }
 }

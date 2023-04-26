@@ -18,24 +18,25 @@ contract Deploy is Script {
         vm.broadcast(deployer);
         registry = new DocRegistry();
 
-        vm.writeFile(
+        string memory x = vm.serializeAddress("index", "a", address(registry));
+        vm.writeJson(
+            x,
             string.concat(
-                "./deploy-",
+                "./packages/contracts/out/deploy-",
                 vm.toString(getChainID()),
                 "-",
                 vm.toString(block.timestamp),
                 ".json"
-            ),
-            vm.toString(address(registry))
+            )
         );
-        vm.writeFile(
+        vm.writeJson(
+            x,
             string.concat(
-                "./deploy-",
+                "./packages/contracts/out/deploy-",
                 vm.toString(getChainID()),
                 "-latest",
                 ".json"
-            ),
-            vm.toString(address(registry))
+            )
         );
 
         console.log("L1 registry addr:", address(registry));

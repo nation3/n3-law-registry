@@ -23,7 +23,7 @@ contract DocRegistry is ERC721, IDocRegistry {
     mapping(bytes32 => string) internal _names;
 
     function registryType() public pure returns (uint8) {
-        return 0; // L1, calldata is not important
+        return 1; // L1, calldata is not important
     }
 
     constructor() ERC721("linked.md", "CONTRACTS") {}

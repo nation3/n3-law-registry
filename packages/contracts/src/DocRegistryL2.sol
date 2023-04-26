@@ -24,7 +24,7 @@ contract DocRegistryL2 is ERC721, IDocRegistryL2 {
     mapping(uint256 => string) internal _names;
 
     function registryType() public pure returns (uint8) {
-        return 1; // L2, calldata is important
+        return 2; // L2, calldata is important
     }
 
     uint256 internal counter;
