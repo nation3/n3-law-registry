@@ -18,7 +18,7 @@ import "./IDocRegistry.sol";
 /// @dev of revisions: it can be changed to whatever)
 /// @dev e.g. nation3/judge-agreement@v4.0.0 or sollee/rental@revisionhere
 contract DocRegistry is ERC721, IDocRegistry {
-    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => bytes)))
+    mapping(bytes32 => mapping(bytes32 => mapping(bytes32 => string)))
         internal _zoneAgreements;
     mapping(bytes32 => string) internal _names;
 
@@ -39,7 +39,7 @@ contract DocRegistry is ERC721, IDocRegistry {
         bytes32 zone,
         bytes32 key,
         string calldata revisionName,
-        bytes calldata value
+        string calldata value
     ) public {
         if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
 
@@ -48,7 +48,7 @@ contract DocRegistry is ERC721, IDocRegistry {
         // latest is an exception to the immutability rule
         if (revisionID != keccak256("latest")) {
             require(
-                _zoneAgreements[zone][key][revisionID].length == 0,
+                bytes(_zoneAgreements[zone][key][revisionID]).length == 0,
                 "exists"
             );
         }
@@ -61,7 +61,7 @@ contract DocRegistry is ERC721, IDocRegistry {
         bytes32 zone,
         bytes32 key,
         bytes32 revision
-    ) public view returns (bytes memory) {
+    ) public view returns (string memory) {
         return _zoneAgreements[zone][key][revision];
     }
 

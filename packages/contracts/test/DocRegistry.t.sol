@@ -55,10 +55,12 @@ contract RegistryTest is Test, DSTestPlus {
 
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("revision")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("revision")
+                    )
                 )
             ) == keccak256("value")
         );
@@ -87,19 +89,23 @@ contract RegistryTest is Test, DSTestPlus {
 
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("revision")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("revision")
+                    )
                 )
             ) == keccak256("value")
         );
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("revision2")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("revision2")
+                    )
                 )
             ) == keccak256("value2")
         );
@@ -121,10 +127,12 @@ contract RegistryTest is Test, DSTestPlus {
 
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("latest")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("latest")
+                    )
                 )
             ) == keccak256("value")
         );
@@ -138,10 +146,12 @@ contract RegistryTest is Test, DSTestPlus {
 
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("latest")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("latest")
+                    )
                 )
             ) == keccak256("value2")
         );
@@ -162,10 +172,12 @@ contract RegistryTest is Test, DSTestPlus {
         );
         assert(
             keccak256(
-                reg.zoneAgreement(
-                    keccak256("zone"),
-                    keccak256("key"),
-                    keccak256("revision")
+                bytes(
+                    reg.zoneAgreement(
+                        keccak256("zone"),
+                        keccak256("key"),
+                        keccak256("revision")
+                    )
                 )
             ) == keccak256("value")
         );
@@ -211,13 +223,13 @@ contract RegistryTest is Test, DSTestPlus {
             "value"
         );
 
-        bytes memory agreementData = reg.zoneAgreement(
+        string memory agreementData = reg.zoneAgreement(
             keccak256("zone"),
             keccak256("key"),
             keccak256("revision")
         );
 
-        assertEq(keccak256(agreementData), keccak256("value"));
+        assertEq(keccak256(bytes(agreementData)), keccak256("value"));
     }
 
     function testGetLatestAgreement() public {
@@ -240,13 +252,13 @@ contract RegistryTest is Test, DSTestPlus {
             "value2"
         );
 
-        bytes memory latest = reg.zoneAgreement(
+        string memory latest = reg.zoneAgreement(
             keccak256("zone"),
             keccak256("key"),
             keccak256("latest")
         );
 
-        assertEq(keccak256(latest), keccak256("value2"));
+        assertEq(keccak256(bytes(latest)), keccak256("value2"));
     }
 
     function testZoneName() public {

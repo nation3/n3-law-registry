@@ -18,7 +18,7 @@ import "./IDocRegistryL2.sol";
 /// @dev of revisions: it can be changed to whatever)
 /// @dev e.g. nation3/judge-agreement@v4.0.0 or sollee/rental@revisionhere
 contract DocRegistryL2 is ERC721, IDocRegistryL2 {
-    mapping(uint256 => mapping(bytes32 => mapping(bytes32 => bytes)))
+    mapping(uint256 => mapping(bytes32 => mapping(bytes32 => string)))
         internal _zoneAgreements;
     mapping(bytes32 => uint256) internal _zoneHashToId;
     mapping(uint256 => string) internal _names;
@@ -46,16 +46,16 @@ contract DocRegistryL2 is ERC721, IDocRegistryL2 {
         uint256 zone,
         bytes32 key,
         string memory revisionName,
-        bytes memory value
+        string memory value
     ) public {
         if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
 
-        bytes32 revisionID = keccak256(bytes(revisionName));
+        bytes32 revisionID = keccak256(abi.encodePacked(revisionName));
 
         // latest is an exception to the immutability rule
         if (revisionID != keccak256("latest")) {
             require(
-                _zoneAgreements[zone][key][revisionID].length == 0,
+                bytes(_zoneAgreements[zone][key][revisionID]).length == 0,
                 "exists"
             );
         }
@@ -68,7 +68,7 @@ contract DocRegistryL2 is ERC721, IDocRegistryL2 {
         uint256 zone,
         bytes32 key,
         bytes32 revision
-    ) public view returns (bytes memory) {
+    ) public view returns (string memory) {
         return _zoneAgreements[zone][key][revision];
     }
 
@@ -76,7 +76,7 @@ contract DocRegistryL2 is ERC721, IDocRegistryL2 {
         bytes32 zone,
         bytes32 key,
         bytes32 revision
-    ) public view returns (bytes memory) {
+    ) public view returns (string memory) {
         return zoneAgreement(zoneID(zone), key, revision);
     }
 
