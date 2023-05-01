@@ -48,7 +48,7 @@ contract DocRegistryL2 is ERC721, IDocRegistryL2 {
         string memory revisionName,
         string memory value
     ) public {
-        if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
+        require(ownerOf(zone) == msg.sender, "not owner");
 
         bytes32 revisionID = keccak256(abi.encodePacked(revisionName));
 

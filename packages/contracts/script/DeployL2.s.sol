@@ -22,7 +22,7 @@ contract Deploy is Script {
         vm.writeJson(
             x,
             string.concat(
-                "./packages/contracts/out/deploy-",
+                "./packages/contracts/out/deploy-l2-",
                 vm.toString(getChainID()),
                 "-",
                 vm.toString(block.timestamp),
@@ -32,7 +32,7 @@ contract Deploy is Script {
         vm.writeJson(
             x,
             string.concat(
-                "./packages/contracts/out/deploy-",
+                "./packages/contracts/out/deploy-l2-",
                 vm.toString(getChainID()),
                 "-latest",
                 ".json"

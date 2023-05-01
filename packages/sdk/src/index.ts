@@ -2,16 +2,11 @@
 
 import { ethers, providers, Signer } from "ethers";
 const { Provider, BaseProvider } = providers;
-import { keccak256 } from "ethers/lib/utils";
+import keccak256 from "keccak256";
 import { DocRegistry } from "../types/DocRegistry";
 import { DocRegistry__factory } from "../types/factories/DocRegistry__factory";
 import { DocRegistryL2__factory } from "../types/factories/DocRegistryL2__factory";
 import { DocRegistryL2 } from "../types/DocRegistryL2";
-import { l1, l2 } from "./abi";
-
-import { CID } from "multiformats/cid";
-import { sha256 } from "multiformats/hashes/sha2";
-import { base64 } from "multiformats/bases/base64";
 
 import addresses from "../src/addresses";
 interface ReadConfig {
@@ -23,14 +18,15 @@ interface WriteConfig {
   signer: Signer;
 }
 
-async function fetchMetadata(
+async function revisionData(
   zone: string,
   key: string,
   revision: string,
   config?: ReadConfig
-) {
-  if (!config) {
+): Promise<string> {
+  if (!config.provider) {
     config = {
+      ...config,
       provider: new ethers.providers.JsonRpcProvider(
         "https://rpc.ankr.com/eth"
       ),
@@ -38,21 +34,38 @@ async function fetchMetadata(
   }
 
   // fetch metadata from the smart contract
-  const contract = await resolveContract(config.contract, config.provider);
+  const [contract, isL1] = await resolveContract(
+    config.contract,
+    config.provider
+  );
 
-  if (contract.contractName == "DocRegistry") {
-    return await contract.zoneAgreement(
-      keccak256(zone),
-      keccak256(key),
-      keccak256(revision)
-    );
-  } else if (contract.contractName == "DocRegistryL2") {
-    return await contract["zoneAgreement(bytes32,bytes32,bytes32)"](
-      keccak256(zone),
-      keccak256(key),
-      keccak256(revision)
-    );
+  const values: [string, string, string] = [
+    "0x" + keccak256(zone).toString("hex"),
+    "0x" + keccak256(key).toString("hex"),
+    "0x" + keccak256(revision).toString("hex"),
+  ];
+
+  if (isL1) {
+    return await (contract as DocRegistry).zoneAgreement(...values);
+  } else {
+    return await contract["zoneAgreement(bytes32,bytes32,bytes32)"](...values);
   }
+}
+
+async function zoneOwner(zone: string, config?: ReadConfig) {
+  if (!config.provider) {
+    config = {
+      ...config,
+      provider: new ethers.providers.JsonRpcProvider(
+        "https://rpc.ankr.com/eth"
+      ),
+    };
+  }
+
+  // fetch metadata from the smart contract
+  const [contract] = await resolveContract(config.contract, config.provider);
+
+  return await contract.zoneOwner(keccak256(zone));
 }
 
 // Check registry type
@@ -60,12 +73,12 @@ async function checkRegistryL1(
   address: string,
   provider: InstanceType<typeof Provider>
 ) {
-  let contract = new ethers.Contract(address, l1, provider) as DocRegistry;
+  let contract = DocRegistry__factory.connect(address, provider);
 
   // both L1 & L2 registry types have registryType() which return either 1 or 2
   // 1 being L1, 2 being L2
 
-  let r = await contract.registryType();
+  let r = await contract.connect(provider).registryType();
 
   if (r == 1) return true;
 
@@ -80,26 +93,45 @@ async function createRevision(
   config: WriteConfig
 ) {
   // fetch metadata from the smart contract
-  const contract = await resolveContract(
+  const [rawContract, isL1] = await resolveContract(
     config.contract,
     config.signer.provider
   );
 
-  await contract.updateAgreement(
-    keccak256(zone),
-    keccak256(key),
-    keccak256(revision),
-    ipfsCid
-  );
+  const contract = rawContract.connect(config.signer);
+
+  try {
+    if (isL1) {
+      await contract.updateAgreement(
+        "0x" + keccak256(zone).toString("hex"),
+        "0x" + keccak256(key).toString("hex"),
+        revision,
+        ipfsCid
+      );
+    } else {
+      const l2Contract: DocRegistryL2 = contract as DocRegistryL2;
+
+      await l2Contract.updateAgreement(
+        await l2Contract.zoneID("0x" + keccak256(zone).toString("hex")),
+        "0x" + keccak256(key).toString("hex"),
+        revision,
+        ipfsCid
+      );
+    }
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
 }
 async function claimZone(zone: string, config: WriteConfig) {
   // fetch metadata from the smart contract
+
   const contract = await resolveContract(
     config.contract,
     config.signer.provider
   );
 
-  await contract.claimZone(zone);
+  await contract[0].connect(config.signer).claimZone(zone);
 }
 
 async function resolveContract(
@@ -110,30 +142,40 @@ async function resolveContract(
 
   let { chainId } = await provider.getNetwork();
 
-  let contractResult = contract;
+  let result = contract;
 
-  if (contractResult == undefined) {
-    if (!addresses[chainId]) {
+  let isL1 = true;
+
+  if (result == undefined) {
+    if (addresses[chainId.toString()] == undefined) {
       throw new Error("No default address for contract could be located");
     }
 
-    contractResult = DocRegistry__factory.connect(
-      addresses[chainId.toString()].address,
-      provider
-    ) as DocRegistry;
-  }
-
-  if (typeof contractResult == "string") {
-    const isL1 = checkRegistryL1(contractResult, provider);
+    isL1 = addresses[chainId.toString()].type == "l1";
 
     if (isL1) {
-      contractResult = DocRegistry__factory.connect(contractResult, provider);
+      result = DocRegistry__factory.connect(
+        addresses[chainId.toString()].address,
+        provider
+      );
     } else {
-      contractResult = DocRegistryL2__factory.connect(contractResult, provider);
+      result = DocRegistryL2__factory.connect(
+        addresses[chainId.toString()].address,
+        provider
+      );
     }
   }
 
-  return contractResult;
+  if (typeof result == "string") {
+    isL1 = await checkRegistryL1(result, provider);
+    if (isL1) {
+      result = DocRegistry__factory.connect(result, provider);
+    } else {
+      result = DocRegistryL2__factory.connect(result, provider);
+    }
+  }
+
+  return [result, isL1] as [DocRegistry | DocRegistryL2, boolean];
 }
 
-export { fetchMetadata, createRevision, claimZone };
+export { revisionData, createRevision, claimZone, zoneOwner, resolveContract };

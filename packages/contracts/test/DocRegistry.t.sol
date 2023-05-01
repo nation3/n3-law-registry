@@ -198,7 +198,7 @@ contract RegistryTest is Test, DSTestPlus {
         assertEq(reg.balanceOf(address(this)), 1);
         assertEq(reg.ownerOf(uint256(keccak256("zone"))), address(this));
 
-        vm.expectRevert(IDocRegistry.Unauthorized.selector);
+        vm.expectRevert("not owner");
         vm.prank(address(0x333));
 
         reg.updateAgreement(

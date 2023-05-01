@@ -169,7 +169,7 @@ contract L2RegistryTest is Test, DSTestPlus {
         assertEq(reg.balanceOf(address(this)), 1);
         assertEq(reg.ownerOf(0), address(this));
 
-        vm.expectRevert(IDocRegistryL2.Unauthorized.selector);
+        vm.expectRevert("not owner");
         vm.prank(address(0x333));
 
         reg.updateAgreement(

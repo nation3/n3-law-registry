@@ -14,8 +14,6 @@ pragma solidity ^0.8.13;
 /// @dev of revisions: it can be changed to whatever)
 /// @dev e.g. nation3/judge-agreement@v4.0.0 or sollee/rental@revisionhere
 interface IDocRegistryL2 {
-    error Unauthorized();
-
     event AgreementUpdated(
         uint256 zone,
         bytes32 key,

@@ -41,7 +41,7 @@ contract DocRegistry is ERC721, IDocRegistry {
         string calldata revisionName,
         string calldata value
     ) public {
-        if (ownerOf(uint256(zone)) != msg.sender) revert Unauthorized();
+        require(ownerOf(uint256(zone)) == msg.sender, "not owner");
 
         bytes32 revisionID = keccak256(bytes(revisionName));
 

@@ -21,6 +21,8 @@
     "typechain": "^8.1.1"
   },
   "dependencies": {
+    "bs58": "^5.0.0",
+    "keccak256": "^1.0.6",
     "multiformats": "^11.0.2"
   }
 }
