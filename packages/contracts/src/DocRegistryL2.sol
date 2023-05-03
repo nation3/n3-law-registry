@@ -9,9 +9,14 @@ import "./IDocRegistryL2.sol";
 /// @author sollee.eth
 /// @notice Package manager for Linked Markdown
 /// @dev Zone names MUST satisfy the following regex:
-/// @dev   ^([a-z0-9\-]{1,32})$
+/// @dev   ([a-z0-9\-]{1,32})
 /// @dev Agreement names MUST satisfy the following regex:
-/// @dev   ^([a-z0-9\-]{1,32})$
+/// @dev   ([a-z0-9\-]{1,32})
+/// @dev Revision names MUST satisfy the following regex:
+/// @dev   ([a-z0-9\-\._]{1,32})
+/// @dev A path MUST satisfy the following regex:
+/// @dev   ^([a-z0-9\-]{1,32})\/([a-z0-9\-]{1,32})@([a-z0-9\-\._]{1,32})$
+/// @dev Capture group 1 is the zone, group 2 is the agreement & 3 is the revision.
 /// @dev Agreements should be referenced like within Linked Markdown like:
 /// @dev   zonename/agreement@revision or just zonename/agreement to get
 /// @dev the key at "latest" (an exception to the immutability

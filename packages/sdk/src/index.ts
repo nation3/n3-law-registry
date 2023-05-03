@@ -73,12 +73,12 @@ async function checkRegistryL1(
   address: string,
   provider: InstanceType<typeof Provider>
 ) {
-  let contract = DocRegistry__factory.connect(address, provider);
+  const contract = DocRegistry__factory.connect(address, provider);
 
   // both L1 & L2 registry types have registryType() which return either 1 or 2
   // 1 being L1, 2 being L2
 
-  let r = await contract.connect(provider).registryType();
+  const r = await contract.connect(provider).registryType();
 
   if (r == 1) return true;
 
@@ -100,27 +100,22 @@ async function createRevision(
 
   const contract = rawContract.connect(config.signer);
 
-  try {
-    if (isL1) {
-      await contract.updateAgreement(
-        "0x" + keccak256(zone).toString("hex"),
-        "0x" + keccak256(key).toString("hex"),
-        revision,
-        ipfsCid
-      );
-    } else {
-      const l2Contract: DocRegistryL2 = contract as DocRegistryL2;
+  if (isL1) {
+    await contract.updateAgreement(
+      "0x" + keccak256(zone).toString("hex"),
+      "0x" + keccak256(key).toString("hex"),
+      revision,
+      ipfsCid
+    );
+  } else {
+    const l2Contract: DocRegistryL2 = contract as DocRegistryL2;
 
-      await l2Contract.updateAgreement(
-        await l2Contract.zoneID("0x" + keccak256(zone).toString("hex")),
-        "0x" + keccak256(key).toString("hex"),
-        revision,
-        ipfsCid
-      );
-    }
-  } catch (e) {
-    console.error(e);
-    throw e;
+    await l2Contract.updateAgreement(
+      await l2Contract.zoneID("0x" + keccak256(zone).toString("hex")),
+      "0x" + keccak256(key).toString("hex"),
+      revision,
+      ipfsCid
+    );
   }
 }
 async function claimZone(zone: string, config: WriteConfig) {
@@ -140,7 +135,7 @@ async function resolveContract(
 ) {
   // fetch metadata from the smart contract
 
-  let { chainId } = await provider.getNetwork();
+  const { chainId } = await provider.getNetwork();
 
   let result = contract;
 
@@ -178,4 +173,29 @@ async function resolveContract(
   return [result, isL1] as [DocRegistry | DocRegistryL2, boolean];
 }
 
-export { revisionData, createRevision, claimZone, zoneOwner, resolveContract };
+function resolvePath(path: string): [string, string, string] {
+  // validate path
+  // regex: ^([a-z0-9\-]{1,32})\/([a-z0-9\-]{1,32})(?:@([a-z0-9\-\._]{1,32})){0,1}$
+
+  const regex =
+    /^([a-z0-9\-]{1,32})\/([a-z0-9\-]{1,32})(?:@([a-z0-9\-\._]{1,32})){0,1}$/;
+
+  let result: Array<string> = path.match(regex);
+
+  if (result != null) {
+    let [, zone, agreement, revision] = result;
+    if (revision == undefined) revision = "latest";
+    return [zone, agreement, revision];
+  }
+
+  return null;
+}
+
+export {
+  revisionData,
+  createRevision,
+  claimZone,
+  zoneOwner,
+  resolveContract,
+  resolvePath,
+};

@@ -5,6 +5,7 @@ import {
   createRevision,
   claimZone,
   zoneOwner,
+  resolvePath,
   revisionData,
 } from "../src/index";
 // spin up a foundry signer
@@ -35,14 +36,15 @@ it("should add a new revision", async () => {
   await createRevision("sweetzone", "mykey", "v69.420.0", "IPFS CID here", {
     signer,
   });
+  await createRevision("sweetzone", "mykey", "v69.420.1337", "IPFS CID here", {
+    signer,
+  });
 });
 
 it("should fail to rewrite a revision", async () => {
   await claimZone("nicezone", { signer });
   await createRevision(
-    "nicezone",
-    "rewritetestkey",
-    "v69.420.0",
+    ...resolvePath("nicezone/rewritetestkey@v69.420.0"),
     "IPFS CID here",
     {
       signer,
@@ -51,9 +53,7 @@ it("should fail to rewrite a revision", async () => {
 
   try {
     await createRevision(
-      "nicezone",
-      "rewritetestkey",
-      "v69.420.0",
+      ...resolvePath("nicezone/rewritetestkey@v69.420.0"),
       "another IPFS CID here",
       {
         signer,
@@ -67,24 +67,28 @@ it("should fail to rewrite a revision", async () => {
 it("should rewrite latest revision", async () => {
   await claimZone("amazingzone", { signer });
 
-  const owner = await zoneOwner("awesomezone", { provider });
+  const owner = await zoneOwner("amazingzone", { provider });
   expect(owner).toEqual(signer.address);
 
-  await createRevision("amazingzone", "coolkey", "latest", "IPFS CID here", {
+  await createRevision(...resolvePath("amazingzone/coolkey"), "IPFS CID here", {
     signer,
   });
 
-  const cid = await revisionData("amazingzone", "coolkey", "latest", {
+  const cid = await revisionData(...resolvePath("amazingzone/coolkey"), {
     provider,
   });
 
   expect(cid).toBe("IPFS CID here");
 
-  await createRevision("amazingzone", "coolkey", "latest", "IPFS CID here 2", {
-    signer,
-  });
+  await createRevision(
+    ...resolvePath("amazingzone/coolkey"),
+    "IPFS CID here 2",
+    {
+      signer,
+    }
+  );
 
-  const cid2 = await revisionData("amazingzone", "coolkey", "latest", {
+  const cid2 = await revisionData(...resolvePath("amazingzone/coolkey"), {
     provider,
   });
 
@@ -93,11 +97,15 @@ it("should rewrite latest revision", async () => {
 
 it("should get revision data", async () => {
   await claimZone("greatzone", { signer });
-  await createRevision("greatzone", "coolkey", "v1337", "IPFS CID here", {
-    signer,
-  });
+  await createRevision(
+    ...resolvePath("greatzone/coolkey@v1337"),
+    "IPFS CID here",
+    {
+      signer,
+    }
+  );
 
-  const cid = await revisionData("greatzone", "coolkey", "v1337", {
+  const cid = await revisionData(...resolvePath("greatzone/coolkey@v1337"), {
     provider,
   });
 
