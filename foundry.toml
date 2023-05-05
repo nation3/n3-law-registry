@@ -21,6 +21,7 @@ sepolia = "${SEPOLIA}"
 anvil = "${ANVIL}"
 base = "${BASE}"
 taiko = "${TAIKO}"
+optimism = "https://mainnet.optimism.io"
 
 [etherscan]
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
