@@ -101,7 +101,7 @@ async function createRevision(
   const contract = rawContract.connect(config.signer);
 
   if (isL1) {
-    await contract.updateAgreement(
+    return await contract.updateAgreement(
       "0x" + keccak256(zone).toString("hex"),
       "0x" + keccak256(key).toString("hex"),
       revision,
@@ -110,7 +110,7 @@ async function createRevision(
   } else {
     const l2Contract: DocRegistryL2 = contract as DocRegistryL2;
 
-    await l2Contract.updateAgreement(
+    return await l2Contract.updateAgreement(
       await l2Contract.zoneID("0x" + keccak256(zone).toString("hex")),
       "0x" + keccak256(key).toString("hex"),
       revision,
@@ -126,7 +126,7 @@ async function claimZone(zone: string, config: WriteConfig) {
     config.signer.provider
   );
 
-  await contract[0].connect(config.signer).claimZone(zone);
+  return await contract[0].connect(config.signer).claimZone(zone);
 }
 
 async function resolveContract(
@@ -192,6 +192,15 @@ function resolvePath(path: string): [string, string, string] {
 }
 
 export {
+  revisionData,
+  createRevision,
+  claimZone,
+  zoneOwner,
+  resolveContract,
+  resolvePath,
+};
+
+module.exports = {
   revisionData,
   createRevision,
   claimZone,
