@@ -6,7 +6,7 @@ https://linked.md
 
 ## how use sdk?
 
-- import `@linkedpm/linkedpm`
+- import `linkedpm`
 - requires an ethers provider
 - all read/write functions have a config object at the end, you can put in a provider/signer and a custom contract if you like
 
@@ -17,7 +17,7 @@ calls the claimZone() function on the contract.
 usage example:
 
 ```ts
-import sdk from "@linkedpm/linkedpm";
+import sdk from "linkedpm";
 
 async function claimIt() {
   await sdk.claimZone("zone-name", {
@@ -51,7 +51,7 @@ the linked markdown parser should fetch your agreements at runtime. it should on
 usage example:
 
 ```ts
-import sdk from "@linkedpm/linkedpm";
+import sdk from "linkedpm";
 
 async function create() {
   // publish your stuff to IPFS
@@ -76,7 +76,7 @@ gets the IPFS CID of the revision.
 usage example:
 
 ```ts
-import sdk from "@linkedpm/linkedpm";
+import sdk from "linkedpm";
 
 async function check() {
   const data = await sdk.revisionData("zonename", "thing", "v69.420.0", {
@@ -97,7 +97,7 @@ gets the owner of a zone
 usage example:
 
 ```ts
-import sdk from "@linkedpm/linkedpm";
+import sdk from "linkedpm";
 
 async function checkOwner() {
   const owner = await sdk.zoneOwner("zonename", {
@@ -120,7 +120,7 @@ you can use the spread operator to pass these values easily to createRevision an
 usage example:
 
 ```ts
-import sdk, { resolvePath } from "@linkedpm/linkedpm";
+import sdk, { resolvePath } from "linkedpm";
 
 async function check() {
   await sdk.revisionData(...resolvePath("zonename/thing@v69.420.0"), {
