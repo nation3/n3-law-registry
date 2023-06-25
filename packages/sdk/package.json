@@ -2,8 +2,8 @@
   "name": "@linkedpm/sdk",
   "version": "1.0.2",
   "description": "Linked Markdown SDK for uploading/fetching",
-  "main": "dist/sdk/index.js",
-  "types": "dist/sdk/index.d.ts",
+  "main": "dist/sdk/src/index.js",
+  "types": "dist/sdk/src/index.d.ts",
   "repository": "https://github.com/solleedev/n3-law-registry.git",
   "author": "Sollee <solleedev@proton.me>",
   "license": "MIT",
@@ -18,7 +18,7 @@
   "scripts": {
     "types": "typechain --target ethers-v5 '../contracts/out/**/!(*.t|test).sol/!(*.abi).json' --out-dir types --discriminate-types",
     "test": "jest",
-    "prepublish": "tsc"
+    "prepublishOnly": "tsc"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
