@@ -14,7 +14,7 @@
     "test": "yarn contracts:test && yarn sdk:test",
     "contracts:test": "forge test",
     "sdk:test": "./sdktest.sh",
-    "sdk:publish": "yarn publish ./packages/sdk/"
+    "sdk:publish": "yarn publish ./packages/sdk/ --access public"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^10.2.0",
