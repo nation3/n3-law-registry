@@ -9,6 +9,8 @@ libs = ['packages/contracts/lib']
 solc = "0.8.18"
 chain_id = 31337
 fs_permissions = [{ access = "read-write", path = "./packages/contracts/"}]
+optimizer = true
+optimizer_runs = 500
 
 [profile.default.model_checker]
 contracts = { 'packages/contracts/src/DocRegistry.sol' = [ 'DocRegistry' ], 'packages/contracts/src/DocRegistryL2.sol' = [ 'DocRegistryL2' ] }
