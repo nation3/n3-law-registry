@@ -8,7 +8,6 @@
   "workspaces": [
     "packages/sdk"
   ],
-  "private": true,
   "scripts": {
     "build": "forge build && yarn workspace @linkedpm/sdk types",
     "test": "yarn contracts:test && yarn sdk:test",
