@@ -1,16 +1,20 @@
 {
   "name": "@linkedpm/sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Linked Markdown SDK for uploading/fetching",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/sdk/index.js",
+  "types": "dist/sdk/index.d.ts",
   "private": false,
   "files": [
-    "/dist"
+    "/dist",
+    "/types",
+    "babel.config.js",
+    "tsconfig.json"
   ],
   "scripts": {
     "types": "typechain --target ethers-v5 '../contracts/out/**/!(*.t|test).sol/!(*.abi).json' --out-dir types --discriminate-types",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "tsc"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
