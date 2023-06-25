@@ -1,6 +1,6 @@
 {
   "name": "@linkedpm/sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Linked Markdown SDK for uploading/fetching",
   "main": "dist/sdk/src/index.js",
   "types": "dist/sdk/src/index.d.ts",
