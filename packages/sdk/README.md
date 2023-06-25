@@ -6,7 +6,7 @@ https://linked.md
 
 ## how use sdk?
 
-- import `linkedpm`
+- import `@linkedpm/sdk`
 - requires an ethers provider
 - all read/write functions have a config object at the end, you can put in a provider/signer and a custom contract if you like
 

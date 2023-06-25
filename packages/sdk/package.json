@@ -1,15 +1,19 @@
 {
   "name": "@linkedpm/sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Linked Markdown SDK for uploading/fetching",
   "main": "dist/sdk/index.js",
   "types": "dist/sdk/index.d.ts",
+  "repository": "https://github.com/solleedev/n3-law-registry.git",
+  "author": "Sollee <solleedev@proton.me>",
+  "license": "MIT",
   "private": false,
   "files": [
     "/dist",
     "/types",
     "babel.config.js",
-    "tsconfig.json"
+    "tsconfig.json",
+    "LICENSE.md"
   ],
   "scripts": {
     "types": "typechain --target ethers-v5 '../contracts/out/**/!(*.t|test).sol/!(*.abi).json' --out-dir types --discriminate-types",

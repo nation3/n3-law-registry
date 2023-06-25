@@ -37,3 +37,5 @@ docs/
 node_modules
 
 packages/sdk/types
+
+dist
